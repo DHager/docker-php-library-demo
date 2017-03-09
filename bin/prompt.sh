@@ -4,4 +4,7 @@ PROJECT_DIR=`dirname $(readlink -f '$BASH_SOURCE../')`;
 source ${PROJECT_DIR}/bin/config.sh
 
 echo "Executing command in container ${CONTAINER_NAME}..."
-docker exec -i -t ${CONTAINER_NAME} bash;
+docker exec --interactive \
+            --tty \
+            ${CONTAINER_NAME} \
+            bash;

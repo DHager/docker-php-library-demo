@@ -30,10 +30,12 @@ docker volume create --name composer-cache
 # and bake into your image at build-time. Since we don't really want anything, we use the docker/ subfolder to speed
 # things up -- the rest of our stuff is handled as a volume mount later on.
 echo "Building docker image..."
-docker build -t ${IMAGE_NAME} -f "docker/Dockerfile" docker/ ;
+docker build --tag ${IMAGE_NAME} \
+             --file "docker/Dockerfile" \
+             docker/ ;
 
 echo "Removing any old running container..."
-docker stop ${CONTAINER_NAME} || true ;
+docker stop ${CONTAINER_NAME} || true ;  # The ||true part makes bash ignore failures for this command
 docker rm ${CONTAINER_NAME} || true ;
 
 # Here you can see two volumes being mounted, the current project (with all the src/ and test/ files) and another
@@ -46,18 +48,21 @@ docker rm ${CONTAINER_NAME} || true ;
 # background so that we can use "docker exec" on it later.
 echo "Running temporary container for image in background..."
 docker run --name "${CONTAINER_NAME}" \
-           -d \
-           -h ${HOST_NAME} \
-           -v ${PROJECT_DIR}:/var/php/ \
-           -v composer-cache:/root/.composer \
-           -e XDEBUG_CONFIG="idekey=docker-phpunit remote_host=$HOST_IP remote_autostart=on" \
-           -e PHP_IDE_CONFIG="serverName=$WEBSERVER_NAME" \
+           --detach \
+           --hostname ${HOST_NAME} \
+           --volume ${PROJECT_DIR}:/var/php/ \
+           --volume composer-cache:/root/.composer \
+           --env XDEBUG_CONFIG="idekey=docker-phpunit remote_host=$HOST_IP remote_autostart=on" \
+           --env PHP_IDE_CONFIG="serverName=$WEBSERVER_NAME" \
            "${IMAGE_NAME}" \
            tail -f /dev/null;
 
 if [ ! -d "$PROJECT_DIR/vendor" ]; then
   echo "No vendor directory found, forcing a composer-install to prepare..."
-  docker exec -i -t ${CONTAINER_NAME} composer install;
+  docker exec --interactive \
+              --tty \
+              ${CONTAINER_NAME} \
+              composer install;
 fi
 
 echo "Done."

@@ -5,4 +5,7 @@ source ${PROJECT_DIR}/bin/config.sh
 
 
 echo "Executing command in container ${CONTAINER_NAME}..."
-docker exec -i -t ${CONTAINER_NAME} vendor/bin/phpunit; # See configuration in phpunit.xml
+docker exec --interactive \
+            --tty \
+            ${CONTAINER_NAME} \
+            vendor/bin/phpunit; # See configuration in phpunit.xml
