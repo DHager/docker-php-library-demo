@@ -4,15 +4,23 @@ The basic ideas behind this project are to provide a demo and test-bed for:
 
 * PHP 7.X
 * Use [Composer](https://getcomposer.org) for PHP dependencies
-* Provide a [Docker](https://www.docker.com/) container so that developers without PHP on their local machines can contribute too.
-* Use the Docker container to run [PHPUnit](https://phpunit.de/) tests and interactive debugging with [Xdebug](https://xdebug.org/) 
+* Provide a [Docker](https://www.docker.com/) container so that developers without PHP on their local machines can 
+  contribute too.
+* Use the Docker container to run [PHPUnit](https://phpunit.de/) tests and interactive debugging with 
+  [Xdebug](https://xdebug.org/) 
 * Work in a way that *can* be integrated with [PHPStorm](https://www.jetbrains.com/phpstorm/), but does not require it.
 
 ## Working with this demo
 
 ### Setting up
 
-`docker/server-up.sh` will attempt to build the image,  start in in the background, and install composer 
+First, you'll need to install Docker on your computer. Please consult 
+[Docker's documentation](https://docs.docker.com/engine/getstarted/) for more information and walk-throughs.
+ 
+Second, you'll need to open a terminal to run most of these commands. On a linux machine, it'll probably be just your
+ regular command-line, but on Windows you may need to launch "Docker Quickstart Terminal".
+
+Finally, run `docker/server-up.sh` will attempt to build the image,  start in in the background, and install composer 
 dependencies.` This can be done without PHPStorm or an IDE. 
 
 Take a quick look at `docker/config.sh`, you don't have to change anything immediately, but you might want to customize
@@ -66,9 +74,11 @@ safely deleted, but it does no harm to leave them around.
 
 ## Known issues
 
-### Windows
-The `server-up.sh` script doesn't behave quite right on Windows machines using Docker Quickstart Terminal, and incorrectly
-detects the IP address of the host machine. For a temporary workaround, you'll need to edit the scirpt and hardcode `$HOST_IP`.
+### IP addresses
+
+The `server-up.sh` script makes a little effort to guess the right IP address for the debugger to use to "call out" of
+the docker container, but this process isn't very refined, and doens't work on Windows machines using Docker Quickstart 
+Terminal. You may need to edit the `config.sh` script and set a value for `$HOST_IP`.
 
 ### Composer "corrupt"
 
@@ -81,3 +91,11 @@ If the image can't be built and you see something like this:
 That means that the Composer team have updated their installer, and the local `docker/Dockerfile` is out of date. It
  needs to be edited to match the hash shown on [the Composer download page](https://getcomposer.org/download/). (And if 
  you've forked the original project, send a pull request!) 
+ 
+ ### FAQ & Commentary
+ 
+ #### Why not use `docker-compose` ?
+ 
+ Perhaps in a future project, where it's a whole LAMP stack being tested. For now, it seems like it would only confuse
+ things to have an additional layer of orchestration.
+   

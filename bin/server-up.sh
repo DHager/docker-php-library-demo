@@ -8,6 +8,13 @@ echo "Project directory absolute path: $PROJECT_DIR"
 echo "Loading config"
 source ${PROJECT_DIR}/bin/config.sh
 
+# If it seems we're already running, try to stop and cleanup.
+if [ -f "$PROJECT_DIR/$CID_PATH" ]; then
+   CID=$(cat "$PROJECT_DIR/$CID_PATH");
+   echo "CID file found, container ($CID) appears to already be running."
+   exit 1;
+fi;
+
 
 if [[ -z "$HOST_IP" ]] || ! [[ "$HOST_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]] ; then
 
@@ -34,9 +41,11 @@ docker build --tag ${IMAGE_NAME} \
              --file "docker/Dockerfile" \
              docker/ ;
 
-echo "Removing any old running container..."
-docker stop ${CONTAINER_NAME} || true ;  # The ||true part makes bash ignore failures for this command
-docker rm ${CONTAINER_NAME} || true ;
+
+# For some reason docker-run doesn't like the full path to the cidfile on Windows, and complains that it cannot
+# open it: https://github.com/docker/docker/issues/31680
+# Here's a workaround to make it into a relative path.
+RELATIVE_CID_PATH=$(realpath --relative-to="." "$PROJECT_DIR/$CID_PATH");
 
 # Here you can see two volumes being mounted, the current project (with all the src/ and test/ files) and another
 # "named" volume which is just an easy way to avoid hammering composer-downloads too much.
@@ -47,7 +56,7 @@ docker rm ${CONTAINER_NAME} || true ;
 # Finally, the "tail" command at the end is just a little trick to make sure the container we launch stays alive in the
 # background so that we can use "docker exec" on it later.
 echo "Running temporary container for image in background..."
-docker run --name "${CONTAINER_NAME}" \
+docker run --cidfile "$RELATIVE_CID_PATH" \
            --detach \
            --hostname ${HOST_NAME} \
            --volume ${PROJECT_DIR}:/var/php/ \
