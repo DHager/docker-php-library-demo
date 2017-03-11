@@ -2,7 +2,7 @@
 
 The bash scripts in this folder are to demonstrate how you can use Docker to manage a PHP project even if you don't have PHP installed or are on Windows. Please consider them an example of what can be done, rather than a finished product that you need to use or extend.
 
-**Note:** If you wish to use a GUI, PHPStorm has its own separate way of handling a lot of the same tasks and responsibilities. Instructions for setting it up are not yet part of this project.
+**Note:** If you wish to use a GUI, PHPStorm has its own separate way of handling a lot of the same tasks and responsibilities, so instead of these scripts you will want to follow the instructions inside the `phpstorm/` folder.
 
 ### Starting up
 
@@ -22,6 +22,8 @@ The file `phpunit.xml` contains additional settings, which are detailed in the
 [PHPUnit documentation](https://phpunit.de/manual/current/en/appendixes.configuration.html). 
 
 ### Debugging in PHPStorm
+
+**Note**: This section is only necessary if you are using `bin/phpunit.sh` to launch debugging. If you are launching it from the integrated debugging buttons in PHPStorm, please refer to the `phpstorm/` folder instead.
 
 The `$SERVER_NAME` variable in `bin/config.sh` will be the name that PHPStorm looks for in its own `Servers`
 section. If your debugger is set to "listening", PHPStorm will probably prompt you for this with a message like:

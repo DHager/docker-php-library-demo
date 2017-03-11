@@ -18,6 +18,8 @@ Follow [Docker's own documentation](https://docs.docker.com/engine/getstarted/) 
 
 If you want to use plain old command line tools, please consult `bin/readme.md` for instructions on how to use the bash scripts in that folder.
  
+If you want to use PHPStorm's integrated tools to do things through your IDE, look in the `phpstorm/` folder for instructions.
+ 
 To change PHP code and test-cases in the `src/` and `test/` folders, just make sure anything you add is compatible with PHP 7.1, and that you follow the [PSR-4 standard](http://www.php-fig.org/psr/psr-4/) for naming classes. You *can* use a different autooading technique, but you'll need to customize `composer.json`.
 
 ## Known issues

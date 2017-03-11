@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE_NAME="technofovea/test-image"; # Arbitrary for your project
+IMAGE_NAME="technofovea/test-image:latest"; # Arbitrary for your project
 
 WEBSERVER_NAME="my-test-server"; # Matching "server" settings in PHPStorm
 HOST_NAME="mytest.docker"; # Jut the network host-name as seen in container's command-line
