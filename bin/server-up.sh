@@ -1,16 +1,13 @@
 #!/bin/bash
 set -e
 
-# $0 isn't as reliable, script may have been launched as "bash foo.sh" instead.
 PROJECT_DIR=`dirname $(readlink -f '$BASH_SOURCE../')`;
-echo "Project directory absolute path: $PROJECT_DIR"
-
-echo "Loading config"
-source ${PROJECT_DIR}/bin/config.sh
+pushd $PROJECT_DIR > /dev/null;
+source "bin/config.sh";
 
 # If it seems we're already running, try to stop and cleanup.
-if [ -f "$PROJECT_DIR/$CID_PATH" ]; then
-   CID=$(cat "$PROJECT_DIR/$CID_PATH");
+if [ -f "$CID_PATH" ]; then
+   CID=$(cat "$CID_PATH");
    echo "CID file found, container ($CID) appears to already be running."
    exit 1;
 fi;
@@ -42,10 +39,7 @@ docker build --tag ${IMAGE_NAME} \
              docker/ ;
 
 
-# For some reason docker-run doesn't like the full path to the cidfile on Windows, and complains that it cannot
-# open it: https://github.com/docker/docker/issues/31680
-# Here's a workaround to make it into a relative path.
-RELATIVE_CID_PATH=$(realpath --relative-to="." "$PROJECT_DIR/$CID_PATH");
+mkdir --parents `dirname $CID_PATH`;
 
 # Here you can see two volumes being mounted, the current project (with all the src/ and test/ files) and another
 # "named" volume which is just an easy way to avoid hammering composer-downloads too much.
@@ -56,7 +50,7 @@ RELATIVE_CID_PATH=$(realpath --relative-to="." "$PROJECT_DIR/$CID_PATH");
 # Finally, the "tail" command at the end is just a little trick to make sure the container we launch stays alive in the
 # background so that we can use "docker exec" on it later.
 echo "Running temporary container for image in background..."
-docker run --cidfile "$RELATIVE_CID_PATH" \
+docker run --cidfile "$CID_PATH" \
            --detach \
            --hostname ${HOST_NAME} \
            --volume ${PROJECT_DIR}:/var/php/ \
@@ -66,12 +60,15 @@ docker run --cidfile "$RELATIVE_CID_PATH" \
            "${IMAGE_NAME}" \
            tail -f /dev/null;
 
-if [ ! -d "$PROJECT_DIR/vendor" ]; then
+CID=$(cat "$CID_PATH");
+
+if [ ! -d "vendor" ]; then
   echo "No vendor directory found, forcing a composer-install to prepare..."
   docker exec --interactive \
               --tty \
-              ${CONTAINER_NAME} \
+              ${CID} \
               composer install;
 fi
 
 echo "Done."
+popd > /dev/null;
