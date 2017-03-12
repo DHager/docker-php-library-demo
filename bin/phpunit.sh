@@ -15,6 +15,6 @@ echo "Executing command in container $CID..."
 docker exec --interactive \
             --tty \
             ${CID} \
-            vendor/bin/phpunit; # See configuration in phpunit.xml
+            vendor/bin/phpunit --coverage-html ./build/coverage; # Arguments modify the defaults in phpunit.xml
 
 popd > /dev/null;
