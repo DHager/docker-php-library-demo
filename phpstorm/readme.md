@@ -9,13 +9,13 @@ This guide will focus on configuring PHPStorm (version 2016.3.2 or above) to:
 * Debug code and tests
 * Collect and display code-coverage information
  
-Please note that these tasks are separate from the scripts in `bin/` and represent a separate control system around the same underlying Docker image.
+Please note that these tasks are separate from the scripts in `bin/` and represent a separate control system around the same underlying Docker image. Some instructions will differ for Linux and Windows.
 
-## Machine-level docker integration
+## Host-machine configuration
 
 The steps in this section are only needed once for a particular developer machine.
 
-### Check that plugins are present
+### Check that PHPStorm plugins are present
 
 This section assumes the following PHPStorm plugins are installed and enabled:
 
@@ -25,25 +25,45 @@ This section assumes the following PHPStorm plugins are installed and enabled:
 
 ### Enable web-control 
 
-If you are on a Linux machine, you may first need to configure your `dockerd` background process so that it exposes an HTTP control interface. By default, it only provides a socket-file which PHPStorm cannot use.
+#### Linux
+
+PHPStorm uses the HTTP(S) API to control Docker, but some Linux installations may only enable the file-socket by default. In this case, you may need to change the settings for the `dockerd` daemon and restart it. These steps will vary based on your distro.
  
-These steps will vary based on your distro, but in Ubuntu, you'll want to edit `/etc/defaults/docker` to add arguments for `dockerd`.
+ Using Ubuntu as an example, edit the `/etc/defaults/docker` file to add arguments for `dockerd`:
     
     DOCKER_OPTS="-H tcp://127.0.0.1:2376 -H unix:///var/run/docker.sock"
     
-Finally, restart `dockerd` with the new settings, such as by `sudo service docker restart` .    
+Then restart `dockerd` with the new settings, such as by `sudo service docker restart` .
+    
+#### Windows
 
-## Tell PHPStorm how to talk to `dockerd`
+The web API is enabled by default in a Windows installation, since unix file-sockets are obviously not available.
 
+### Tell PHPStorm how to talk to `dockerd`
+
+#### Linux
 
 In PHPStorm, open the `File > Settings` dialog, and navigate to `Build, Execution, Deployment > Docker`. Press the green `+` icon:
 
 * Name: Choose anything you want, such as `My Local Docker`
-* API URL: Leave it at the default: `http://127.0.0.1:2376`
+* API URL: Leave it at the default. `http://127.0.0.1:2376`
 * Docker Compose executable: Try `/usr/local/bin/docker-compose`
 
-If you're not sure where docker-compose lives, you can try opening a terminal and typing `which docker-compose`. 
+If you're not sure where docker-compose lives, you can try opening a terminal and typing `which docker-compose`.
+ 
+#### Windows
 
+In PHPStorm, open the `File > Settings` dialog, and navigate to `Build, Execution, Deployment > Docker`. Press the green `+` icon:
+
+* Name: Choose anything you want, such as `My Local Docker`
+* API URL: Leave it at the default. `https://192.168.99.100:2376`
+* Docker Compose executable: Try `C:\Program Files\Docker Toolbox\docker-compose.exe`
+
+Since the control URL is https, you will also need credentials. 
+
+* Tick "Import Credentials from Docker Machine"
+* Enter in the "Docker Machine executable" path e.g. `C:\Program Files\Docker Toolbox\docker-machine.exe`. Copy-pasting alone doesn't always work, you may need to also click the `...` button and hit OK inside the file-finder dialog in order to make PHPStorm react.
+* This should automatically fill the "Certificates Folder" path.
 
 ### Per-project configuration
 
@@ -57,10 +77,13 @@ Go to `Run > Edit Configurations` dialog, and click the green `+` icon and choos
 * Container name: You can leave this blank if you wish.
 * Open Browser: Ignore this section, this particular project is command-line only.
 
-Next, click on the "Container" tab...
-
-* Add one entry under "Volume bindings", mapping `/var/php` to the project directory. (The folder that contains `composer.json`)
+Next, click on the "Container" tab, and add one entry under "Volume bindings", mapping `/var/php` to the project directory.
  
+**Windows-specific instructions**
+
+* **Warning:** If you click to browse to the project directory, you may encounter the error: "VirtualBox shared folders should be configured in the Docker cloud settings". This seems to be spurious and can be ignored, but it does stop you from "exploring" your way to the folder. 
+* Instead, enter the path manually in a form understood by [MinGW](http://www.mingw.org/wiki/Posix_path_conversion). For example, the path `c:/foo/bar` should be entered as `/c/foo/bar`.
+
 At this point, you can try running your `Test Server`, which should cause PHPStorm display a long screen of progress text that resembles:
 
     Deploying '<unknown>  Dockerfile: docker/Dockerfile'...
@@ -83,6 +106,10 @@ With the image you created in the previous step, there's an "Attached console" t
 `composer install`
 
 This will modify the content of `/var/php/vendor`, which will create a `vendor` folder in your project. Generally speaking, changes to other paths inside the container will not be permanently saved.
+
+While you work on a project, you may need to return to this interface (or re-launch the container) in order to run other commands such as `composer update`. 
+
+As of March 2017, PHPStorm's plug-in for Composer does **not** yet support remote-interpreters. Unfortunately this means many GUI "Composer" options will not work, and the `composer.json` file isn't as convenient to edit. 
 
 ## Configuring a remote PHP interpreter
 
@@ -121,9 +148,7 @@ Now just press the green "Play" arrow at the top of the screen to run the tests.
     
     Time: 182 ms, Memory: 4.00MB
     
-    OK (1 test, 2 assertions)
-    
-    Generating code coverage report in Clover XML format ... done
+    OK (1 test, 2 assertions)        
     
     Generating code coverage report in HTML format ... done
     
