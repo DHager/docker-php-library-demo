@@ -121,19 +121,24 @@ Click the green `+` button in the corner to add a new "Remote...", and choose th
 * Image name: The image you chose earlier, e.g. `technofovea/test-image:latest`
 * PHP Interpreter path: `php`
 
-Click OK to dismiss the dialog and click OK again to return to the screen where you had to choose the "CLI Interpreter", which should now show something like `Remote PHP 7.1`. 
+Click OK to dismiss the dialog, and now enter a unique name for this image's interpreter such as `test-image Remote 7.1`. Click OK again. 
 
 In an earlier step, we configured `/var/php` on the docker container to contain our project. However, PHPStorm uses its own default of `/opt/project` Let's fix that by going to the line labeled "Docker Container" and click the `...` button, and then change `/opt/project` to `/var/php`.
 
 ### Configuring the PHPUnit environment  
 
  
-In PHPStorm, open the `File > Settings` dialog, and navigate to `Languages & Frameworks > PHP >  PHPUnit`. There will already be an entry called "Local", but this is a default that you should ignore. Instead, click the green `+` button and choose "By Remote Interpreter". Then choose the interpreter we set up in the previous step, `Remote PHP 7.1`, and click OK.
+In PHPStorm, open the `File > Settings` dialog, and navigate to `Languages & Frameworks > PHP >  PHPUnit`. There will already be an entry called "Local", but this is a default that you should ignore. Instead, click the green `+` button and choose "By Remote Interpreter". Then choose the interpreter we set up in the previous step, `test-image Remote 7.1`, and click OK.
 
 Choose the "Use Composer autoloader" radio-button, and enter in:
 
 * Path to script: `/var/php/vendor/autoload.php`.
 * Default configuration file:  `/var/php/phpunit.xml`
+
+#### Additional Windows instructions
+
+Due to the Windows/Linux path differences, you may need to add an additional Path Mapping here in order for debugging breakpoints to work. On the "Path mappings" line, click on the `...` button to open a dialog. You should already see one row underneath a heading titled "From Docker volumes". If that row says something like `/c/some/path`, you should add a new row that is identical except for the beginning, ex: `c:/some/path`. 
+ 
 
 ## Create a PHPUnit run to hit all tests
 
