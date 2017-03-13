@@ -65,9 +65,9 @@ Since the control URL is https, you will also need credentials.
 * Enter in the "Docker Machine executable" path e.g. `C:\Program Files\Docker Toolbox\docker-machine.exe`. Copy-pasting alone doesn't always work, you may need to also click the `...` button and hit OK inside the file-finder dialog in order to make PHPStorm react.
 * This should automatically fill the "Certificates Folder" path.
 
-### Per-project configuration
+## Per-project configuration
 
-## Creating the image
+### Creating the image
 
 Go to `Run > Edit Configurations` dialog, and click the green `+` icon and choose "Docker Deployment". Give it a name like `Test Server`, and fill it in with values for:
 
@@ -99,7 +99,7 @@ At this point, you can try running your `Test Server`, which should cause PHPSto
     '<unknown>  Dockerfile: docker/Dockerfile' has been deployed successfully.
 
 
-## Installing/updating composer libraries
+### Installing/updating composer libraries
 
 With the image you created in the previous step, there's an "Attached console" tab. You will want to run the command:
 
@@ -111,7 +111,7 @@ While you work on a project, you may need to return to this interface (or re-lau
 
 As of March 2017, PHPStorm's plug-in for Composer does **not** yet support remote-interpreters. Unfortunately this means many GUI "Composer" options will not work, and the `composer.json` file isn't as convenient to edit. 
 
-## Configuring a remote PHP interpreter
+### Configuring a remote PHP interpreter
 
 In PHPStorm, open the `File > Settings` dialog, and navigate to `Languages & Frameworks > PHP`. For this particular project, make sure the PHP Language Level is 7.1. On the line labeled "CLI Interpreter", click the  button marked `...` to open up a new dialog. 
 
@@ -125,7 +125,7 @@ Click OK to dismiss the dialog and click OK again to return to the screen where 
 
 In an earlier step, we configured `/var/php` on the docker container to contain our project. However, PHPStorm uses its own default of `/opt/project` Let's fix that by going to the line labeled "Docker Container" and click the `...` button, and then change `/opt/project` to `/var/php`.
 
-## Configuring the PHPUnit environment  
+### Configuring the PHPUnit environment  
 
  
 In PHPStorm, open the `File > Settings` dialog, and navigate to `Languages & Frameworks > PHP >  PHPUnit`. There will already be an entry called "Local", but this is a default that you should ignore. Instead, click the green `+` button and choose "By Remote Interpreter". Then choose the interpreter we set up in the previous step, `Remote PHP 7.1`, and click OK.
