@@ -160,3 +160,18 @@ Now just press the green "Play" arrow at the top of the screen to run the tests.
     Process finished with exit code 0
   
 If you want to debug or do code-coverage, there are a additional buttons to the right of the "Play" button. 
+
+## Other tools
+
+### PHP Mess Detector (phpmd) inspections
+
+Not yet available with this project, because PHPStorm 2016.3.3 will not mount volumes for the Docker container when running the inspection, so the `vendor/` folder is unavailable.
+
+As a workaround, you may need to "bake in" a separate installation of `phpmd` into the Docker image.
+
+### PHP Code Sniffer (phpcs) inspections
+
+Not yet available with this project, because PHPStorm 2016.3.3 will not mount volumes for the Docker container when running the inspection, so the `vendor/` folder is unavailable.
+
+As a workaround, you may need to "bake in" a separate installation of `phpcs` into the Docker image.
+ 
