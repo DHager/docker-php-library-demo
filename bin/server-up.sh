@@ -26,10 +26,6 @@ if [[ -z "$HOST_IP" ]] || ! [[ "$HOST_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}
 fi;
 
 
-echo "Creating temporary composer-cache volume..."
-docker volume create --name composer-cache
-
-
 # A best-practice for docker is that your "build context" contains the bare-minimum of files you might want to send over
 # and bake into your image at build-time. Since we don't really want anything, we use the docker/ subfolder to speed
 # things up -- the rest of our stuff is handled as a volume mount later on.
@@ -39,13 +35,15 @@ docker build --tag ${IMAGE_NAME} \
              docker/ ;
 
 
+mkdir --parents ./build/composer-cache/;
 mkdir --parents `dirname $CID_PATH`;
 
-# Here you can see two volumes being mounted, the current project (with all the src/ and test/ files) and another
-# "named" volume which is just an easy way to avoid hammering composer-downloads too much.
+# Here we run the image (creating a container) in the background, mounting the project directory as writable on /var/php
 #
 # We use the XDEBUG_CONFIG environment variable here because the IP address of the host machine isn't something we want
 # to "bake" into the image.
+# The COMPOSER_CACHE_DIR bit is optional, but makes some composer tasks faster because we can keep and reuse our
+# downloaded files across containers.
 #
 # Finally, the "tail" command at the end is just a little trick to make sure the container we launch stays alive in the
 # background so that we can use "docker exec" on it later.
@@ -54,8 +52,8 @@ docker run --cidfile "$CID_PATH" \
            --detach \
            --hostname ${HOST_NAME} \
            --volume ${PROJECT_DIR}:/var/php/ \
-           --volume composer-cache:/root/.composer \
-           --env XDEBUG_CONFIG="idekey=docker-phpunit remote_host=$HOST_IP remote_autostart=on" \
+           --env COMPOSER_CACHE_DIR="/var/php/build/composer-cache" \
+           --env XDEBUG_CONFIG="idekey=$WEBSERVER_NAME remote_host=$HOST_IP remote_autostart=on" \
            --env PHP_IDE_CONFIG="serverName=$WEBSERVER_NAME" \
            "${IMAGE_NAME}" \
            tail -f /dev/null;
