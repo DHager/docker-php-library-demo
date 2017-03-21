@@ -1,8 +1,10 @@
-### The purpose of these scripts
+## The purpose of these scripts
 
 The bash scripts in this folder are to demonstrate how you can use Docker to manage a PHP project even if you don't have PHP installed or are on Windows. Please consider them an example of what can be done, rather than a finished product that you need to use or extend.
 
 **Note:** If you wish to use a GUI, PHPStorm has its own separate way of handling a lot of the same tasks and responsibilities, so instead of these scripts you will want to follow the instructions inside the `phpstorm/` folder.
+
+## Basic lifecycle
 
 ### Starting up
 
@@ -41,19 +43,36 @@ Next, PHPStorm will probably say something like:
 
 All you need to do is enable a path-mapping where your project root lives "remotely" (in the Docker container) as `/var/php`
 
-### Tinkering with the docker environment
-
-`bin/prompt.sh` can be used if you want to manually tinker, or to run commands like `composer update` when you've changed the dependencies.
 
 ### Cleaning up and shutting down
 
 `bin/server-down.sh` will try to stop the docker container and remove it. The `build/` and `vendor/` folders can be safely deleted, but it does no harm to leave them around.
 
+## Other tasks
+
+### Tinkering with the docker environment
+
+`bin/prompt.sh` can be used if you want to manually tinker, or to run commands like `composer update` when you've changed the dependencies.
+
+### Running other PHP tools 
+
+For composer-distributed dev tools like `phpmd` or `phpcs`, the portable way is to:
+
+1. Add them as dependencies in `composer.json`
+2. Start a terminal with `bin/prompt.sh`
+3. Use `composer update` to download them into the `vendor/` folder if you haven't already
+4. Run the command that the tool provides inside `/var/php/vendor/bin/` 
+
+There is another mechanism which exists mainly to support quirks of PHPStorm, which is to use fixed copies "baked in" to the image:
+
+1. Start a terminal with `bin/prompt.sh`
+2. Run the command that the tool provides inside `/var/phptool/vendor/bin/`
+
 ## Known issues with scripts
 
 ### IP addresses
 
-The `bin/server-up.sh` script makes a little effort to guess the right IP address for the debugger to use to "call out" of the docker container, but this process isn't very refined, and doens't work on Windows machines using Docker Quickstart Terminal. You may need to edit the `bin/config.sh` script and set a value for `$HOST_IP`.
+The `bin/server-up.sh` script makes a little effort to guess the right IP address for the debugger to use to "call out" of the docker container, but this process isn't very refined. You can edit the `bin/config.sh` script and set a value for `$HOST_IP` if it doesn't seem to be working.
 
 ### Composer "corrupt"
 

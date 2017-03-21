@@ -142,7 +142,7 @@ Due to the Windows/Linux path differences, you may need to add an additional Pat
 
 ## Create a PHPUnit run to hit all tests
 
-Go to `Run > Edit Configurations` dialog, and click the green `+` icon and choose "PHPUnit". Give it a name like `"Run all tests", and choose the radio-button "Defined in configuration file". Click OK.
+Go to `Run > Edit Configurations` dialog, and click the green `+` icon and choose "PHPUnit". Give it a name like "Run all tests", and choose the radio-button "Defined in configuration file". Click OK.
 
 Now just press the green "Play" arrow at the top of the screen to run the tests. PHPStorm should pop up a text area showing something like: 
 
@@ -163,15 +163,22 @@ If you want to debug or do code-coverage, there are a additional buttons to the 
 
 ## Other tools
 
-### PHP Mess Detector (phpmd) inspections
+### Inspections
 
-Not yet available with this project, because PHPStorm 2016.3.3 will not mount volumes for the Docker container when running the inspection, so the `vendor/` folder is unavailable.
+Currently PHPStorm 2016.3.3 will not mount any of our previously-defined volume-mappings when it runs `phpcs` or `phpmd`. As a workaround, the tools are baked into the docker image under `/var/phptools/`. You can change which versions are installed by editing `docker/inspections-composer.json` and recreating the image.
 
-As a workaround, you may need to "bake in" a separate installation of `phpmd` into the Docker image.
+To enable Mess Detector (`phpmd`)
 
-### PHP Code Sniffer (phpcs) inspections
+1. Go to `Files > Settings` dialog
+2. Navigate to `Languages & Frameworks > PHP > Mess Detector`
+3. Under Configuration, pick `Default Project Interpreter`, and then the `...` button. 
+4. You should see "Local" and not much else. Hit `+` to add a new entry, picking the `test-image Remote 7.1` we created in previous steps.
+5. Enter a path of `/var/phptools/vendor/bin/phpmd`, click "Validate" to check, and then you're done.
 
-Not yet available with this project, because PHPStorm 2016.3.3 will not mount volumes for the Docker container when running the inspection, so the `vendor/` folder is unavailable.
+To enable Code Sniffer (`phpcs`)
 
-As a workaround, you may need to "bake in" a separate installation of `phpcs` into the Docker image.
- 
+1. Go to `Files > Settings` dialog
+2. Navigate to `Languages & Frameworks > PHP > Code Sniffer`
+3. Under Configuration, pick `Default Project Interpreter`, and then the `...` button. 
+4. You should see "Local" and not much else. Hit `+` to add a new entry, picking the `test-image Remote 7.1` we created in previous steps.
+5. Enter a path of `/var/phptools/vendor/bin/phpcs`, click "Validate" to check, and then you're done.
