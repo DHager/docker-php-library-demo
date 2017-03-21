@@ -15,9 +15,12 @@ fi;
 
 if [[ -z "$HOST_IP" ]] || ! [[ "$HOST_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]] ; then
 
-    if [ -x "$(command -v ifconfig)" ]; then
+    if [ -x "$(command -v docker-machine)" ]; then
+        HOST_IP=`docker-machine ip default`;
+        echo "Autodetected IP from docker-machine as $HOST_IP";
+    elif [ -x "$(command -v ifconfig)" ]; then
         HOST_IP=`ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1`;
-        echo "Autodetected IP As $HOST_IP";
+        echo "Autodetected IP from ifconfig as $HOST_IP";
     else
         # Prompt, user might be on a windows machine too
         echo "IDE/host IP not in config.sh, and autodetection failed. Please enter it now. (ex: 192.168.99.1)"
