@@ -26,7 +26,9 @@ ENV PATH $PATH:/root/bin
 # Create separate "baked in" PHPMD and PHPCS (needed only for PHPStorm inspections)
 RUN mkdir --parent /var/phptools
 COPY inspections-composer.json /var/phptools/composer.json
-RUN cd /var/phptools && composer update;
+RUN cd /var/phptools \
+    && composer update \
+    && composer clear-cache ;
 
 # Expose main working directory so that project can be mounted there
 VOLUME /var/php
