@@ -29,11 +29,27 @@ This section assumes the following PHPStorm plugins are installed and enabled:
 
 PHPStorm uses the HTTP(S) API to control Docker, but some Linux installations may only enable the file-socket by default. In this case, you may need to change the settings for the `dockerd` daemon and restart it. These steps will vary based on your distro.
  
- Using Ubuntu as an example, edit the `/etc/defaults/docker` file to add arguments for `dockerd`:
+
+##### Suggested for Ubuntu 14
+
+Edit the `/etc/defaults/docker` file to add arguments for `dockerd`:
     
     DOCKER_OPTS="-H tcp://127.0.0.1:2376 -H unix:///var/run/docker.sock"
     
 Then restart `dockerd` with the new settings, such as by `sudo service docker restart` .
+
+##### Suggested for Ubuntu 16
+
+Create or modify the file `/etc/systemd/system/docker.service.d/custom.conf` to contain:
+    
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:2376 -H unix:///var/run/docker.sock
+    
+The reload configuration and restart docker with the commands
+
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
     
 #### Windows
 
@@ -49,7 +65,7 @@ In PHPStorm, open the `File > Settings` dialog, and navigate to `Build, Executio
 * API URL: Leave it at the default. `http://127.0.0.1:2376`
 * Docker Compose executable: Try `/usr/local/bin/docker-compose`
 
-If you're not sure where docker-compose lives, you can try opening a terminal and typing `which docker-compose`.
+If you're not sure where docker-compose lives, you can try opening a terminal and typing `which docker-compose`. There should usually be no need for docker-machine settings.
  
 #### Windows
 
