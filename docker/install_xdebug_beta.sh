@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 set -e
 
 readonly VERSION=xdebug-2.6.0beta1
@@ -8,10 +8,10 @@ readonly URL=https://xdebug.org/files/${VERSION}.tgz
 
 pushd /tmp/;
 wget "${URL}";
-#if [ $(sha256sum /tmp/${VERSION}.tgz) != ${SHA} ]; then
-#    echo "Xdebug source code SHA256 does not match";
-#    exit 1;
-#fi
+
+# Validate checksum for security
+echo "${SHA}"    "/tmp/${VERSION}.tgz" | sha256sum --check
+
 tar -xzvf /tmp/${VERSION}.tgz;
 cd ./${VERSION}/;
 
