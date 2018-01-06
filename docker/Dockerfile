@@ -1,4 +1,4 @@
-FROM php:7.1-cli
+FROM php:7.2-cli
 
 # Install applications needed by Composer
 RUN apt-get update && \
@@ -6,7 +6,8 @@ RUN apt-get update && \
     apt-get purge -y --auto-remove;
 
 # Install XDebug
-RUN pecl install xdebug \
+ADD install_xdebug_beta.sh /tmp/
+RUN bash /tmp/install_xdebug_beta.sh \
     && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini ;
