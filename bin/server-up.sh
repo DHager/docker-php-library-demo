@@ -1,8 +1,8 @@
-#!/bin/bash
-set -e
+#!/bin/sh
+set -eu
 
-PROJECT_DIR=`dirname $(readlink -f '$BASH_SOURCE../')`;
-pushd $PROJECT_DIR > /dev/null;
+readonly PROJECT_DIR=$(dirname "$(dirname "$(readlink -f "$0")")")
+cd "$PROJECT_DIR";
 source "bin/config.sh";
 
 # If it seems we're already running, try to stop and cleanup.
@@ -13,21 +13,19 @@ if [ -f "$CID_PATH" ]; then
 fi;
 
 
-if [[ -z "$HOST_IP" ]] || ! [[ "$HOST_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]] ; then
-
+(echo "$HOST_IP" | grep -Eq '[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+') || {
     if [ -x "$(command -v docker-machine)" ]; then
-        HOST_IP=`docker-machine ip default`;
+        HOST_IP=$(docker-machine ip default);
         echo "Autodetected IP from docker-machine as $HOST_IP";
     elif [ -x "$(command -v ifconfig)" ]; then
-        HOST_IP=`ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1`;
+        HOST_IP=$(ifconfig eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1);
         echo "Autodetected IP from ifconfig as $HOST_IP";
     else
         # Prompt, user might be on a windows machine too
         echo "IDE/host IP not in config.sh, and autodetection failed. Please enter it now. (ex: 192.168.99.1)"
-        read HOST_IP
+        read -r HOST_IP
     fi;
-fi;
-
+}
 
 # A best-practice for docker is that your "build context" contains the bare-minimum of files you might want to send over
 # and bake into your image at build-time. Since we don't really want anything, we use the docker/ subfolder to speed
@@ -39,7 +37,7 @@ docker build --tag ${IMAGE_NAME} \
 
 
 mkdir --parents ./build/composer-cache/;
-mkdir --parents `dirname $CID_PATH`;
+mkdir --parents "$(dirname $CID_PATH)";
 
 # Here we run the image (creating a container) in the background, mounting the project directory as writable on /var/php
 #
@@ -53,8 +51,8 @@ mkdir --parents `dirname $CID_PATH`;
 echo "Running temporary container for image in background..."
 docker run --cidfile "$CID_PATH" \
            --detach \
-           --hostname ${HOST_NAME} \
-           --volume ${PROJECT_DIR}:/var/php/ \
+           --hostname "${HOST_NAME}" \
+           --volume "${PROJECT_DIR}:/var/php/" \
            --env COMPOSER_CACHE_DIR="/var/php/build/composer-cache" \
            --env XDEBUG_CONFIG="idekey=$WEBSERVER_NAME remote_host=$HOST_IP remote_autostart=on" \
            --env PHP_IDE_CONFIG="serverName=$WEBSERVER_NAME" \
@@ -67,9 +65,8 @@ if [ ! -d "vendor" ]; then
   echo "No vendor directory found, forcing a composer-install to prepare..."
   docker exec --interactive \
               --tty \
-              ${CID} \
+              "${CID}" \
               composer install;
 fi
 
 echo "Done."
-popd > /dev/null;

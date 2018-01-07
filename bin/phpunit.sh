@@ -1,8 +1,8 @@
-#!/bin/bash
-set -e
+#!/bin/sh
+set -eu
 
-PROJECT_DIR=`dirname $(readlink -f '$BASH_SOURCE../')`;
-pushd $PROJECT_DIR > /dev/null;
+readonly PROJECT_DIR=$(dirname "$(dirname "$(readlink -f "$0")")")
+cd "$PROJECT_DIR";
 source "bin/config.sh";
 
 if ! [ -f "$CID_PATH" ]; then
@@ -14,7 +14,6 @@ CID=$(cat "$CID_PATH");
 echo "Executing command in container $CID..."
 docker exec --interactive \
             --tty \
-            ${CID} \
+            "${CID}" \
             vendor/bin/phpunit --coverage-html ./build/coverage; # Arguments modify the defaults in phpunit.xml
 
-popd > /dev/null;
