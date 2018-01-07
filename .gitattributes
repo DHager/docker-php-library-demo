@@ -1,0 +1,7 @@
+* text eol=auto
+
+# Should be LF even on windows due to mounted shares
+*.sh text eol=lf
+
+*.php text
+*.md text
