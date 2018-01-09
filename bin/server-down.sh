@@ -3,7 +3,7 @@ set -eu
 
 readonly PROJECT_DIR=$(dirname "$(dirname "$(readlink -f "$0")")")
 cd "$PROJECT_DIR";
-source "bin/config.sh";
+. "bin/config.sh";
 
 if [ -f "$CID_PATH" ]; then
     CID=$(cat "$CID_PATH");
